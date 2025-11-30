@@ -1,0 +1,19 @@
+<!-- main/templates/main/notifications.html -->
+
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Уведомления{% endblock %}
+
+{% block content %}
+<h2>Уведомления о предстоящих мероприятиях</h2>
+<ul class="list-group">
+    {% for ticket in upcoming_tickets %}
+        <li class="list-group-item">
+            <strong>{{ ticket.event.name }}</strong> - {{ ticket.event.date|date:"d.m.Y H:i" }}
+        </li>
+    {% empty %}
+        <p>У вас нет предстоящих мероприятий.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

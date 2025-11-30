@@ -1,0 +1,35 @@
+<!-- main/templates/main/confirm_ticket_purchase.html -->
+{% extends 'main/base.html' %}
+{% block title %}Подтвердить оплату{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Подтверждение оплаты билета</h2>
+    <p><strong>Мероприятие:</strong> {{ ticket.event.name }}</p>
+    <p><strong>Покупатель:</strong> {{ ticket.user.username }}</p>
+    <p><strong>Ряд / Место:</strong>
+        {% if ticket.seat %}
+            Ряд {{ ticket.seat.row }}, Место {{ ticket.seat.number }}
+        {% else %}
+            -
+        {% endif %}
+    </p>
+    <p><strong>Статус оплаты:</strong>
+        {% if ticket.is_confirmed %}
+            <span style="color: green;">Оплачен</span>
+        {% else %}
+            <span style="color: red;">Не оплачен</span>
+        {% endif %}
+    </p>
+
+    {% if not ticket.is_confirmed %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Подтвердить оплату</button>
+            <a href="{% url 'organizer_buyers_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    {% else %}
+        <a href="{% url 'organizer_buyers_list' %}" class="btn btn-secondary">Назад</a>
+    {% endif %}
+</div>
+{% endblock %}

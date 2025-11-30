@@ -1,0 +1,58 @@
+<!-- main/templates/main/organizer_buyers_list.html -->
+{% extends 'main/base.html' %}
+{% block title %}Мои покупатели{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Список покупателей моих мероприятий</h2>
+    {% if tickets %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Мероприятие</th>
+                    <th>Покупатель</th>
+                    <th>Ряд / Место</th>
+                    <th>Статус оплаты</th>
+                    <th>Подтверждение</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in tickets %}
+                <tr>
+                    <td>{{ t.event.name }}</td>
+                    <td>{{ t.user.username }}</td>
+                    <td>
+                        {% if t.seat %}
+                            Ряд {{ t.seat.row }}, Место {{ t.seat.number }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.is_confirmed %}
+                            <span style="color: green;">Оплачен</span>
+                        {% else %}
+                            <span style="color: red;">Не оплачен</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not t.is_confirmed %}
+                            <form method="post" action="{% url 'confirm_ticket_purchase' t.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    Подтвердить оплату
+                                </button>
+                            </form>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Пока никто не покупал билеты на ваши мероприятия.</p>
+    {% endif %}
+</div>
+{% endblock %}

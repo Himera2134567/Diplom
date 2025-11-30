@@ -1,0 +1,54 @@
+<!-- main/templates/admin_custom/user_list.html -->
+
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Админ — Список пользователей{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Список пользователей</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя пользователя</th>
+                <th>Email</th>
+                <th>Дата регистрации</th>
+                <th>Тип пользователя</th>
+                <th>Подтип</th>
+                <th>Город</th>
+                <th>Адрес</th>
+                <th>Управление</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>
+                    <a href="{% url 'custom_admin_user_edit' user.pk %}">
+                        {{ user.username }}
+                    </a>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.date_joined|date:"d.m.Y H:i" }}</td>
+                <td>{{ user.profile.get_user_type_display }}</td>
+                <td>
+                    {% if user.profile.user_type == 'organizer' %}
+                        {{ user.profile.get_event_type_display }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ user.profile.city }}</td>
+                <td>{{ user.profile.address }}</td>
+                <td>
+                    <a href="{% url 'custom_admin_user_edit' user.pk %}" class="btn btn-sm btn-warning">Редактировать</a>
+                    <a href="{% url 'custom_admin_user_delete' user.id %}" class="btn btn-sm btn-danger">Удалить</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

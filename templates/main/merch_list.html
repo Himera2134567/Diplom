@@ -1,0 +1,57 @@
+<!-- main/templates/main/merch_list.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Магазин{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Магазин</h2>
+    <div class="row">
+        {% for merch in merch_items %}
+            <div class="col-md-4">
+                <div class="card custom-card h-100">
+                    {% if merch.image %}
+                        <img src="{{ merch.image.url }}" class="card-img-top" alt="{{ merch.name }}">
+                    {% else %}
+                        <img src="{% static 'main/images/default_merch.jpg' %}" class="card-img-top" alt="{{ merch.name }}">
+                    {% endif %}
+                    <div class="card-body custom-card-body">
+                        <h5 class="card-title">{{ merch.name }}</h5>
+                        <!-- Статичное окно для описания -->
+                        <div class="custom-card-text">
+                            {{ merch.description|truncatechars:200 }}
+                        </div>
+                        <p><strong>Цена в баллах:</strong> {{ merch.price_in_points }}</p>
+                        <a href="{% url 'merch_detail' merch.pk %}" class="btn btn-primary btn-more">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Товары не найдены.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .custom-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .custom-card .card-img-top {
+        width: 100%;
+        height: 300px; /* Увеличена высота картинок */
+        object-fit: cover; /* Обрезка для сохранения пропорций */
+        margin-bottom: 10px; /* Отступ снизу для улучшения визуала */
+    }
+    .custom-card .custom-card-text {
+        height: 120px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+    }
+    .custom-card .btn {
+        margin-top: auto;
+    }
+</style>
+{% endblock %}

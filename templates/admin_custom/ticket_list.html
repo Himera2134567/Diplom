@@ -1,0 +1,54 @@
+<!-- admin_custom/ticket_list.html -->
+
+{% extends 'main/base.html' %}
+{% block title %}Админ — Список билетов{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Список билетов</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Мероприятие</th>
+                <th>Пользователь</th>
+                <th>Место</th>
+                <th>Подтверждён?</th>
+                <th>Дата покупки</th>
+                <th>Управление</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tickets %}
+            <tr>
+                <td>{{ t.id }}</td>
+                <td>{{ t.event.name }}</td>
+                <td>{{ t.user.username }}</td>
+                <td>
+                    {% if t.seat %}
+                        Ряд {{ t.seat.row }}, место {{ t.seat.number }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if t.is_confirmed %}
+                        Да
+                    {% else %}
+                        Нет
+                    {% endif %}
+                </td>
+                <td>{{ t.purchase_date|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if not t.is_confirmed %}
+                        <a href="{% url 'custom_admin_ticket_confirm' t.id %}" class="btn btn-sm btn-primary">
+                            Подтвердить
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

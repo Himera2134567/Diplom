@@ -1,0 +1,21 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}Реакции{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Пользователи, поставившие {% if reaction_type == 'like' %}лайк{% else %}дизлайк{% endif %} для сообщения №{{ message.id }}</h2>
+    {% if reactions %}
+        <ul class="list-group">
+            {% for reaction in reactions %}
+                <li class="list-group-item">
+                    {{ reaction.user.username }}
+                    <small class="text-muted">({{ reaction.created_at|date:"d.m.Y H:i" }})</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Нет реакций.</p>
+    {% endif %}
+    <a href="{% url 'chat' %}" class="btn btn-secondary mt-3">Назад в чат</a>
+</div>
+{% endblock %}

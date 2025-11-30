@@ -1,0 +1,147 @@
+<!-- main/templates/main/base.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Event Platform{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <!-- Если у вас есть собственный styles.css -->
+    <link rel="stylesheet" href="{% static 'main/css/styles.css' %}">
+    <style>
+        /* Глобальные стили (пример) */
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+        .container {
+            flex: 1 0 auto;
+            padding-top: 40px; /* чтобы navbar не перекрывал контент */
+            padding-bottom: 10px;
+        }
+        footer {
+            flex-shrink: 0;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">Event Platform</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- Левое меню -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if user.is_authenticated and user.profile.user_type == 'organizer' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'create_event' %}">Создать мероприятие</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'manage_discounts' %}">Управление скидками</a>
+                        </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'event_list' %}">События</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'merch_list' %}">Магазин</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'organizer_list' %}">Организаторы</a>
+                    </li>
+                    <!-- Ссылка на страницу чата -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'chat' %}">Чат</a>
+                    </li>
+                    <!-- Ссылка на отчёты (charts) -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'charts' %}">Отчёты</a>
+                    </li>
+                </ul>
+                <!-- Правое меню -->
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">Профиль</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'feedback' %}">Обратная связь</a>
+                        </li>
+                        {% if user.is_superuser or user.profile.user_type == 'admin' %}
+                            <li class="nav-item">
+                                <a class="nav-link text-danger" href="{% url 'custom_admin_home' %}">Админ-панель</a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+    <form method="post" action="{% url 'logout' %}" class="d-inline align-middle">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link nav-link pt-0 mt-2">Выйти</button>
+    </form>
+</li>
+
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Основной контент -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    
+    <!-- Футер -->
+    <footer class="footer bg-dark text-white mt-auto py-3">
+        <div class="container text-center" style="max-width: 800px; margin: 0 auto;">
+            <div class="d-flex justify-content-center gap-3 mb-2">
+                <a href="https://vk.com/afisha" target="_blank"
+                   class="d-flex align-items-center justify-content-center"
+                   style="width:50px; height:50px; background:#4680C2; border-radius:50%; text-decoration:none;">
+                    <span style="color:#fff; font-size:18px; font-weight:bold;">VK</span>
+                </a>
+                <a href="https://t.me/afisha" target="_blank"
+                   class="d-flex align-items-center justify-content-center"
+                   style="width:50px; height:50px; background:#0088cc; border-radius:50%; text-decoration:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#fff" viewBox="0 0 256 256">
+                        <path d="M128 0C57.31 0 0 57.31 0 128s57.31 128 128 128 128-57.31 128-128S198.69 0 128 0zm58.24 86.64l-21.82 102.73a10.67 10.67 0 0 1-15.67 7.07l-38.44-23.19-18.46 17.71a6.7 6.7 0 0 1-11.4-4.32v-28.46l70.69-65.15c3.17-2.93-.69-7.93-4.78-5.44L70.47 127.39l-27.3-8.54a6.67 6.67 0 0 1 0-12.76l138.09-52.2c5.35-2 11 3.05 9.98 8.75z"/>
+                    </svg>
+                </a>
+            </div>
+            <p class="mb-1">© 2025 Платформа мероприятий. Все права защищены.</p>
+            <p class="mb-1">
+                <a href="{% url 'privacy_policy' %}" class="text-white me-3" style="text-decoration: none;">Политика конфиденциальности</a>
+                <a href="{% url 'terms_of_service' %}" class="text-white" style="text-decoration: none;">Условия использования</a>
+            </p>
+            <p>Контакты: +7 (927) 970-38-36 | info@eventplatform.ru</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

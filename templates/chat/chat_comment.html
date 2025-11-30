@@ -1,0 +1,24 @@
+<div class="comment" data-comment-id="{{ comment.id }}" style="margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px; margin-top: 10px;">
+  <p>
+    <strong>{{ comment.author.username }}</strong>
+    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+  </p>
+  <p>{{ comment.content }}</p>
+  <p>
+    <a href="{% url 'chat_reaction' comment.id 'like' %}">Лайк ({{ comment.get_like_count }})</a> |
+    <a href="{% url 'chat_reaction' comment.id 'dislike' %}">Дизлайк ({{ comment.get_dislike_count }})</a>
+  </p>
+  {% if user.is_authenticated %}
+    <form method="post" action="{% url 'chat' %}" class="comment-form" data-parent-id="{{ comment.id }}">
+      {% csrf_token %}
+      <input type="hidden" name="parent" value="{{ comment.id }}">
+      <textarea name="content" placeholder="Ваш ответ..." class="form-control" rows="2"></textarea>
+      <button type="submit" class="btn btn-primary btn-sm mt-1">Отправить</button>
+    </form>
+  {% endif %}
+  {% if comment.comments.all %}
+    {% for child in comment.comments.all %}
+      {% include "main/chat_comment.html" with comment=child %}
+    {% endfor %}
+  {% endif %}
+</div>

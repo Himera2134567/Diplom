@@ -1,0 +1,98 @@
+<!-- main/templates/main/privacy_policy.html -->
+
+{% extends "main/base.html" %}
+
+{% block title %}Организаторы{% endblock %}
+
+{% block content %}
+<div class="mt-5">
+    <h1>Список организаторов</h1>
+    <form method="get" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control" placeholder="Поиск по нику..." value="{{ query }}">
+            </div>
+            <div class="col-md-4">
+                <input type="text" name="city" class="form-control" placeholder="Город..." value="{{ city }}">
+            </div>
+            <div class="col-md-4">
+                <select name="event_type" class="form-select">
+                    <option value="">Все типы мероприятий</option>
+                    {% for code, label in organizers.model.EVENT_TYPE_CHOICES %}
+                        <option value="{{ code }}" {% if event_type == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Найти</button>
+                <a href="{% url 'organizer_list' %}" class="btn btn-secondary">Сбросить</a>
+            </div>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ник</th>
+                <th>Город</th>
+                <th>Тип мероприятий</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for organizer in organizers %}
+            <tr>
+                <!-- Оборачиваем ник организатора в ссылку -->
+                <td>
+                    <a href="{% url 'organizer_detail' organizer.pk %}">
+                        {{ organizer.user.username }}
+                    </a>
+                </td>
+                <td>{{ organizer.city }}</td>
+                <td>{{ organizer.get_event_type_display }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">Организаторы не найдены.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% extends 'main/base.html' %}
+{% block title %}Политика конфиденциальности{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Политика конфиденциальности</h2>
+    <p>Последнее обновление: 1 января 2024 г.</p>
+    <p>Настоящая Политика конфиденциальности описывает, как "Платформа мероприятий" собирает, использует и защищает вашу личную информацию при использовании нашего веб-сайта.</p>
+    <h3>Сбор информации</h3>
+    <p>Мы можем собирать следующую информацию:</p>
+    <ul>
+        <li>Имя и фамилия</li>
+        <li>Контактная информация, включая адрес электронной почты и номер телефона</li>
+        <li>Демографическая информация</li>
+        <li>История покупок и взаимодействий с сайтом</li>
+    </ul>
+    <h3>Использование информации</h3>
+    <p>Собранная информация используется для:</p>
+    <ul>
+        <li>Предоставления услуг и обработки заказов</li>
+        <li>Улучшения работы сайта</li>
+        <li>Отправки рекламных материалов и специальных предложений</li>
+    </ul>
+    <h3>Защита данных</h3>
+    <p>Мы принимаем необходимые меры для обеспечения безопасности вашей информации и предотвращения несанкционированного доступа.</p>
+    <h3>Файлы cookie</h3>
+    <p>Наш сайт использует файлы cookie для улучшения пользовательского опыта. Вы можете отключить cookies в настройках вашего браузера.</p>
+    <h3>Ссылки на сторонние ресурсы</h3>
+    <p>Наш сайт может содержать ссылки на другие сайты. Мы не несем ответственности за содержание и политику конфиденциальности этих сайтов.</p>
+    <h3>Изменения в политике конфиденциальности</h3>
+    <p>Мы можем периодически обновлять данную политику. Рекомендуем регулярно просматривать эту страницу.</p>
+    <h3>Контакты</h3>
+    <p>Если у вас есть вопросы по поводу данной Политики конфиденциальности, свяжитесь с нами по адресу: support@eventplatform.ru</p>
+</div>
+{% endblock %}

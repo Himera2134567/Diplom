@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Статистика (ЛР-6…10)</title>
+
+  <!-- Google Charts -->
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <!-- Стили -->
+  <style>
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      background:#f5f5f5;
+      margin:0;
+      padding:0;
+    }
+    .container{
+      max-width:960px;
+      margin:20px auto;
+      background:#fff;
+      padding:20px;
+      border-radius:6px;
+      box-shadow:0 2px 8px rgba(0,0,0,.1);
+    }
+    h2{margin-top:2rem;}
+    h4{margin:1.5rem 0 .5rem;}
+    .chart,.table{margin-bottom:1.5rem;}
+    .btn-group{margin:.5rem 0;}
+    .btn{
+      padding:.3rem .6rem;
+      margin-right:.4rem;
+      border:1px solid #007bff;
+      border-radius:4px;
+      color:#007bff;
+      text-decoration:none;
+    }
+    .btn.active{background:#007bff;color:#fff;}
+    hr{margin:2rem 0;border:none;border-top:1px solid #ddd;}
+    .detail-table{width:100%;border-collapse:collapse;margin-bottom:1rem;}
+    .detail-table th,
+    .detail-table td{border:1px solid #ccc;padding:4px 8px;text-align:center;}
+  </style>
+
+  <!-- Скрипты -->
+  <script>
+    google.charts.load('current',{
+      packages:[
+        'corechart','table','calendar',
+        'orgchart','geochart','sankey','timeline'
+      ],
+      language:'ru'
+    });
+    google.charts.setOnLoadCallback(drawAll);
+
+    function drawAll(){
+      /* ЛР-7 */
+      drawProfit(); drawIndicators(); drawDyn();
+      /* ЛР-6 */
+      drawArea(); drawBubble(); drawCalendar(); drawOrg();
+      drawGeo(); drawSankey(); drawTimeline();
+      /* ЛР-8 */
+      drawSmoothingCalcTable(); drawSmoothingCalcChart();
+      drawForecastTable(); drawForecastChart();
+      /* ЛР-9 */
+      drawRunsTest(); drawRunsDetail();
+      drawTrendParams(); drawTrendCalc(); drawTrendCharts();
+      /* ЛР-10 */
+      drawLab10();
+    }
+
+    /* ================= ЛР-7 ================= */
+    function drawProfit(){
+      const data=google.visualization.arrayToDataTable({{ profit_json|safe }});
+      new google.visualization.Table(
+        document.getElementById('profit_table')
+      ).draw(data,{width:'100%'});
+    }
+    function drawIndicators(){
+      const data=google.visualization.arrayToDataTable({{ indicators_json|safe }});
+      new google.visualization.Table(
+        document.getElementById('indicators_table')
+      ).draw(data,{width:'100%'});
+    }
+    function drawDyn(){
+      const o=google.visualization.arrayToDataTable({{ dyn_orders_json|safe }});
+      const r=google.visualization.arrayToDataTable({{ dyn_revenue_json|safe }});
+      const u=google.visualization.arrayToDataTable({{ dyn_users_json|safe }});
+      new google.visualization.LineChart(document.getElementById('dyn_orders')).draw(o,{title:'Заказы'});
+      new google.visualization.LineChart(document.getElementById('dyn_revenue')).draw(r,{title:'Выручка'});
+      new google.visualization.LineChart(document.getElementById('dyn_users')).draw(u,{title:'Новые клиенты'});
+    }
+
+    /* ================= ЛР-6 ================= */
+    function drawArea(){
+      const data=google.visualization.arrayToDataTable({{ area_json|safe }});
+      new google.visualization.AreaChart(
+        document.getElementById('area_chart')
+      ).draw(data,{title:'Диаграмма областей',areaOpacity:.4});
+    }
+    function drawBubble(){
+      const data=google.visualization.arrayToDataTable({{ bubble_json|safe }});
+      new google.visualization.BubbleChart(
+        document.getElementById('bubble_chart')
+      ).draw(data,{
+        title:'Пузырьковая диаграмма',
+        hAxis:{title:'Цена'},
+        vAxis:{title:'Клиенты'}
+      });
+    }
+    function drawCalendar(){
+      const raw={{ calendar_json|safe }};
+      const dt=new google.visualization.DataTable();
+      dt.addColumn('date','Дата');
+      dt.addColumn('number','Заказы');
+      raw.slice(1).forEach(r=>dt.addRow([new Date(r[0]),r[1]]));
+      new google.visualization.Calendar(
+        document.getElementById('calendar_chart')
+      ).draw(dt,{title:'Календарь заказов',height:350});
+    }
+    function drawOrg(){
+      const raw={{ org_json|safe }};
+      const dt=new google.visualization.DataTable();
+      dt.addColumn('string','Родитель');
+      dt.addColumn('string','Дочерний');
+      raw.forEach(r=>dt.addRow(r));
+      new google.visualization.OrgChart(
+        document.getElementById('org_chart')
+      ).draw(dt,{allowHtml:true});
+    }
+    function drawGeo(){
+      const data=google.visualization.arrayToDataTable({{ geo_json|safe }});
+      new google.visualization.GeoChart(
+        document.getElementById('geo_chart')
+      ).draw(data,{});
+    }
+    function drawSankey(){
+      const data=google.visualization.arrayToDataTable({{ sankey_json|safe }});
+      new google.visualization.Sankey(
+        document.getElementById('sankey_chart')
+      ).draw(data,{});
+    }
+    function drawTimeline(){
+      const raw={{ timeline_json|safe }};
+      const dt=new google.visualization.DataTable();
+      dt.addColumn({type:'string',id:'Товар'});
+      dt.addColumn({type:'date',id:'Начало'});
+      dt.addColumn({type:'date',id:'Конец'});
+      raw.slice(1).forEach(r=>dt.addRow([r[0],new Date(r[1]),new Date(r[2])]));
+      new google.visualization.Timeline(
+        document.getElementById('timeline_chart')
+      ).draw(dt,{height:300,timeline:{colorByRowLabel:true}});
+    }
+
+    /* ================= ЛР-8 ================= */
+    function drawSmoothingCalcTable(){
+      const raw=JSON.parse('{{ smoothing_calc_json|escapejs }}');
+      const dt=new google.visualization.DataTable();
+      dt.addColumn('string','Месяц');
+      dt.addColumn('number','Факт');
+      dt.addColumn('number','MA3');
+      dt.addColumn('number','MA7');
+      dt.addColumn('number','WMA5');
+      raw.forEach((r,i)=>{
+        dt.addRow([
+          r[0],
+          r[1]==null?null:Number(r[1]),
+          r[2]===false?null:Number(r[2]),
+          r[3]===false?null:Number(r[3]),
+          r[4]===false?null:Number(r[4])
+        ]);
+        if(r[5]) dt.setProperty(i,2,'style','color:#d00;font-weight:bold');
+        if(r[6]) dt.setProperty(i,3,'style','color:#d00;font-weight:bold');
+        if(r[7]) dt.setProperty(i,4,'style','color:#d00;font-weight:bold');
+      });
+      new google.visualization.Table(
+        document.getElementById('lr8_table_calc')
+      ).draw(dt,{allowHtml:true,width:'100%'});
+    }
+    function drawSmoothingCalcChart(){
+      const raw=JSON.parse('{{ smoothing_calc_json|escapejs }}');
+      const arr=[['Месяц','Факт','MA3','WMA5','MA7']];
+      raw.forEach(r=>arr.push([
+        r[0],
+        r[1]==null?null:Number(r[1]),
+        r[2]===false?null:Number(r[2]),
+        r[4]===false?null:Number(r[4]),
+        r[3]===false?null:Number(r[3])
+      ]));
+      const data=google.visualization.arrayToDataTable(arr);
+      new google.visualization.LineChart(
+        document.getElementById('lr8_chart_calc')
+      ).draw(data,{
+        title:'Сглаживание ряда скользящими средними',
+        curveType:'function',
+        legend:{position:'bottom'}
+      });
+    }
+    function drawForecastTable(){
+      const raw=JSON.parse('{{ smoothing_forecast_json|escapejs }}');
+      const dt=new google.visualization.DataTable();
+      dt.addColumn('string','Месяц');
+      dt.addColumn('number','Факт');
+      dt.addColumn('number','MA3');
+      dt.addColumn('number','MA7');
+      dt.addColumn('number','WMA5');
+      raw.forEach((r,i)=>{
+        dt.addRow([
+          r[0],
+          r[1]==null?null:Number(r[1]),
+          r[2]===false?null:Number(r[2]),
+          r[3]===false?null:Number(r[3]),
+          r[4]===false?null:Number(r[4])
+        ]);
+        if(i===raw.length-1){
+          [2,3,4].forEach(col=>{
+            if(dt.getValue(i,col)!==null){
+              dt.setProperty(i,col,'style','color:#007bff;font-weight:bold');
+            }
+          });
+        } else {
+          if(r[5]) dt.setProperty(i,2,'style','color:#d00;font-weight:bold');
+          if(r[6]) dt.setProperty(i,3,'style','color:#d00;font-weight:bold');
+          if(r[7]) dt.setProperty(i,4,'style','color:#d00;font-weight:bold');
+        }
+      });
+      new google.visualization.Table(
+        document.getElementById('lr8_table_forecast')
+      ).draw(dt,{allowHtml:true,width:'100%'});
+    }
+    function drawForecastChart(){
+      const raw=JSON.parse('{{ smoothing_forecast_json|escapejs }}');
+      const arr=[['Месяц','MA3','WMA5','MA7']];
+      raw.forEach(r=>arr.push([
+        r[0],
+        r[2]===false?null:Number(r[2]),
+        r[4]===false?null:Number(r[4]),
+        r[3]===false?null:Number(r[3])
+      ]));
+      const data=google.visualization.arrayToDataTable(arr);
+      new google.visualization.LineChart(
+        document.getElementById('lr8_chart_forecast')
+      ).draw(data,{
+        title:'Прогноз скользящих средних (следующий период)',
+        curveType:'function',
+        legend:{position:'bottom'}
+      });
+    }
+
+    /* ================= ЛР-9 ================= */
+    function drawRunsTest(){
+      const raw=JSON.parse('{{ series_test_json|escapejs }}');
+      const dt=new google.visualization.DataTable();
+      dt.addColumn('string','Ряд');
+      dt.addColumn('string','Критерий');
+      ['R_obs','E[R]','Var','Z'].forEach(h=>dt.addColumn('number',h));
+      raw.forEach(r=>{
+        dt.addRow([r.name,'По медиане',r.R_med,r.E_med,r.Var_med,r.Z_med]);
+        dt.addRow([r.name,'Восх./Нисх.',r.R_dir,r.E_dir,r.Var_dir,r.Z_dir]);
+      });
+      new google.visualization.Table(
+        document.getElementById('lr9_test_table')
+      ).draw(dt,{width:'100%'});
+    }
+    function drawRunsDetail(){
+      const raw=JSON.parse('{{ runs_detail_json|escapejs }}');
+      const wrap=document.getElementById('lr9_runs_detail');
+      wrap.innerHTML='';
+      raw.forEach(o=>{
+        const h=document.createElement('h5');
+        h.innerHTML=`<span style="color:#673ab7;">${o.name}</span> — `+
+                    (o.criterion==='median'?'по медиане':'восх./нисх. серий');
+        wrap.appendChild(h);
+        const info=document.createElement('p');
+        info.innerHTML=`Длина ряда: <b>${o.n}</b>`+
+                       (o.criterion==='median'?`; медиана: <b>${o.median}</b>`:'');
+        wrap.appendChild(info);
+        const seq=document.createElement('p');
+        seq.textContent=`Последовательность: ${o.signs}`;
+        wrap.appendChild(seq);
+        const tbl=document.createElement('table');
+        tbl.className='detail-table';
+        tbl.innerHTML='<tr><th>Серия</th><th>Знак</th><th>Длина</th></tr>';
+        o.series.forEach((s,i)=>{
+          tbl.innerHTML+=`<tr><td>${i+1}</td><td>${s.sign}</td><td>${s.len}</td></tr>`;
+        });
+        wrap.appendChild(tbl);
+        wrap.appendChild(Object.assign(document.createElement('p'),{textContent:`Число серий (v): ${o.cmp_v}`}));
+        wrap.appendChild(Object.assign(document.createElement('p'),{textContent:`Макс. длина (tmax): ${o.cmp_tmx}`}));
+        let reason='';
+        if(!o.accept){
+          const parts=[];
+          if(!(o.v>o.lowerV)) parts.push(`v = ${o.v} ≤ ${o.lowerV}`);
+          if(!(o.tmax<o.upperT)) parts.push(`tmax = ${o.tmax} ≥ ${o.upperT}`);
+          reason='Причина: '+parts.join(' и ');
+        }
+        const verdict=document.createElement('p');
+        verdict.style.fontWeight='bold';
+        verdict.style.color=o.accept?'#388e3c':'#d32f2f';
+        verdict.textContent=o.accept?
+          'Гипотеза принята: все условия выполнены':
+          `Гипотеза отклонена. ${reason}`;
+        wrap.appendChild(verdict);
+      });
+    }
+    function drawTrendParams(){
+      const raw=JSON.parse('{{ trend_params_json|escapejs }}');
+      const dt=new google.visualization.DataTable();
+      dt.addColumn('string','Ряд');
+      dt.addColumn('string','Модель');
+      dt.addColumn('string','Уравнение');
+      raw.forEach(r=>{
+        dt.addRow([r.name,'Линейная',`y = ${r.a0_lin.toFixed(2)} + ${r.a1_lin.toFixed(2)}·t`]);
+        dt.addRow([r.name,'Параболич.',`y = ${r.a0_par.toFixed(2)} + ${r.a1_par.toFixed(2)}·t + ${r.a2_par.toFixed(2)}·t²`]);
+        dt.addRow([r.name,'Показат.',`y = ${r.a_exp.toFixed(2)} · ${r.b_exp.toFixed(4)}^t`]);
+      });
+      new google.visualization.Table(
+        document.getElementById('lr9_params_table')
+      ).draw(dt,{width:'100%'});
+    }
+    function drawTrendCalc(){
+      const raw=JSON.parse('{{ trend_calc_json|escapejs }}');
+      const wrap=document.getElementById('lr9_calc_tables');
+      wrap.innerHTML='';
+      raw.forEach(o=>{
+        const title=document.createElement('h5');
+        title.textContent=o.name;
+        wrap.appendChild(title);
+        const div=document.createElement('div');
+        div.className='table';
+        wrap.appendChild(div);
+        const dt=new google.visualization.DataTable();
+        ['№','yₜ','t','yₜ·t','t²','yₜ·t²','t⁴','ln(yₜ)','ln(yₜ)·t']
+          .forEach((h,i)=>dt.addColumn(i?'number':'string',h));
+        o.rows.forEach(r=>{
+          const row=r.slice();
+          row[0]=String(row[0]);
+          dt.addRow(row);
+        });
+        new google.visualization.Table(div).draw(dt,{allowHtml:true,width:'100%'});
+      });
+    }
+    function drawTrendCharts(){
+      const dataRaw=JSON.parse('{{ trend_data_json|escapejs }}');
+      const paramsRaw=JSON.parse('{{ trend_params_json|escapejs }}');
+      const P={};
+      paramsRaw.forEach(p=>P[p.name]=p);
+      const wrap=document.getElementById('lr9_chart');
+      wrap.innerHTML='';
+      dataRaw.forEach(r=>{
+        const h=document.createElement('h5');
+        h.textContent=`Ряд ${r.name}`;
+        wrap.appendChild(h);
+        const chartDiv=document.createElement('div');
+        chartDiv.className='chart';
+        chartDiv.style.height='320px';
+        wrap.appendChild(chartDiv);
+        const arr=[['t','Факт','Линейная','Параб.','Показат.']];
+        r.values.forEach(v=>arr.push(v));
+        const data=google.visualization.arrayToDataTable(arr);
+        new google.visualization.LineChart(chartDiv).draw(data,{
+          legend:{position:'bottom'},
+          hAxis:{title:'t – номер наблюдения'},
+          vAxis:{title:'yₜ'}
+        });
+        const p=document.createElement('p');
+        p.style.fontStyle='italic';
+        p.style.marginTop='-8px';
+        const q=P[r.name];
+        p.innerHTML=
+          `Линейная: yₜ = ${q.a0_lin.toFixed(2)} + ${q.a1_lin.toFixed(2)} t;<br>`+
+          `Параболическая: yₜ = ${q.a0_par.toFixed(2)} + ${q.a1_par.toFixed(2)} t + ${q.a2_par.toFixed(2)} t²;<br>`+
+          `Показательная: yₜ = ${q.a_exp.toFixed(2)} × ${q.b_exp.toFixed(4)}ᵗ`;
+        wrap.appendChild(p);
+      });
+    }
+
+    /* ================= ЛР-10 ================= */
+    function drawLab10(){
+      const raw=JSON.parse('{{ lab10_json|escapejs }}');
+      const dt=new google.visualization.DataTable();
+      ['Ряд','Модель','R_obs','E[R]','Var','Z','Скос','Эксцес','DW','SSE','MSE','MAPE %','S']
+        .forEach(h=>dt.addColumn((['Ряд','Модель'].includes(h)?'string':'number'),h));
+      raw.forEach(it=>{
+        dt.addRow([
+          it.series,it.model,it.runs,it.ER,it.Var,it.Z,
+          it.skew,it.kurt,it.dw,
+          it.sse,it.mse,it.mape,it.S
+        ]);
+      });
+      new google.visualization.Table(
+        document.getElementById('lab10_table')
+      ).draw(dt,{width:'100%'});
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ЛР-7 -->
+    <h2>ЛР 7: Временные ряды и их анализ</h2>
+    <h4>1. Прибыль по месяцам</h4>
+    <div id="profit_table" class="table"></div>
+    <h4>2. Показатели динамики</h4>
+    <div id="indicators_table" class="table"></div>
+    <h4>3. Динамика по 
+      <span class="btn-group">
+        <a href="?period=day" class="btn {% if period == 'day' %}active{% endif %}">дням</a>
+        <a href="?period=week" class="btn {% if period == 'week' %}active{% endif %}">неделям</a>
+      </span>
+    </h4>
+    <div id="dyn_orders"  class="chart" style="height:250px;"></div>
+    <div id="dyn_revenue" class="chart" style="height:250px;"></div>
+    <div id="dyn_users"   class="chart" style="height:250px;"></div>
+
+    <hr>
+
+    <!-- ЛР-6 -->
+    <h2>ЛР 6: Диаграммы специального вида</h2>
+    <div id="area_chart"     class="chart" style="height:300px;"></div>
+    <div id="bubble_chart"   class="chart" style="height:300px;"></div>
+    <div id="calendar_chart" class="chart" style="height:350px;"></div>
+    <div id="org_chart"      class="chart" style="height:300px;"></div>
+    <div id="geo_chart"      class="chart" style="height:300px;"></div>
+    <div id="sankey_chart"   class="chart" style="height:300px;"></div>
+    <div id="timeline_chart" class="chart" style="height:300px;"></div>
+
+    <hr>
+
+    <!-- ЛР-8 -->
+    <h2>ЛР 8: Сглаживание временных рядов</h2>
+    <h4>1. Таблица расчёта скользящих средних</h4>
+    <div id="lr8_table_calc" class="table"></div>
+    <div id="lr8_chart_calc" class="chart" style="height:400px;"></div>
+    <h4>2. Таблица расчёта со следующим периодом</h4>
+    <div id="lr8_table_forecast" class="table"></div>
+    <div id="lr8_chart_forecast" class="chart" style="height:400px;"></div>
+
+    <hr>
+
+    <!-- ЛР-9 -->
+    <h2>ЛР 9: Моделирование тенденции развития</h2>
+    <h4>1. Проверка гипотез (сводная)</h4>
+    <div id="lr9_test_table" class="table"></div>
+    <h4>1a. Проверка гипотез (детально)</h4>
+    <div id="lr9_runs_detail"></div>
+    <h4>2. Параметры моделей</h4>
+    <div id="lr9_params_table" class="table"></div>
+    <h4>2a. Расчётные таблицы 3.5 / 3.6</h4>
+    <div id="lr9_calc_tables"></div>
+    <h4>3. Графики моделей</h4>
+    <div id="lr9_chart"></div>
+
+    <hr>
+
+    <!-- ЛР-10 -->
+    <h2>ЛР 10: Адекватность и точность моделей</h2>
+
+    {# 10.1–10.9: серийный критерий #}
+    {% for series, tests in runs_tests.items %}
+      <h3>Проверка случайности остатков — {{ series }}</h3>
+      {% for model, R in tests.items %}
+        <h4>Модель: {{ model }}</h4>
+        <p>
+          Последовательность изменений:
+          {% for s in R.series %}
+            {{ s.type }}{% if not forloop.last %} {% endif %}
+          {% endfor %}
+        </p>
+        <table class="table">
+          <thead><tr><th>№</th><th>Тип</th><th>Длина</th></tr></thead>
+          <tbody>
+            {% for s in R.series %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.type }}</td>
+                <td>{{ s.len }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p>v = {{ R.v }} (> {{ R.lower|floatformat:"2" }})
+           — {% if R.v > R.lower %}выполнено{% else %}не выполнено{% endif %}</p>
+        <p>tₘₐₓ = {{ R.tmax }} (< {{ R.upper }})
+           — {% if R.tmax < R.upper %}выполнено{% else %}не выполнено{% endif %}</p>
+        <p><strong>Заключение:</strong>
+          {% if R.v > R.lower and R.tmax < R.upper %}
+            Гипотеза принята
+          {% else %}
+            Гипотеза отклонена
+          {% endif %}
+        </p>
+        <hr>
+      {% endfor %}
+    {% endfor %}
+
+    {# 10.10: проверка нормальности #}
+    {% for series, tests in normal_tests.items %}
+      <h3>Проверка нормальности остатков — {{ series }}</h3>
+      <table class="table">
+        <thead><tr>
+          <th>Модель</th><th>A</th><th>E</th><th>Итог</th>
+        </tr></thead>
+        <tbody>
+          {% for model, N in tests.items %}
+            <tr>
+              <td>{{ model }}</td>
+              <td>{{ N.A|floatformat:"4" }}</td>
+              <td>{{ N.E|floatformat:"4" }}</td>
+              <td>{% if N.ok %}Принята{% else %}Требует проверки{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <hr>
+    {% endfor %}
+
+    <!-- 10.11–10.19: тест Дарбина–Уотсона -->
+{% for series, tests in dw_tests.items %}
+  <h3>Проверка автокорреляции (DW) — {{ series }}</h3>
+  {% for model, D in tests.items %}
+    <h4>Модель: {{ model }}</h4>
+    <table class="table">
+      <thead>
+        <tr><th>№</th><th>eₜ</th><th>eₜ²</th><th>(eₜ–eₜ₋₁)²</th></tr>
+      </thead>
+      <tbody>
+        {% for row in D.table %}
+          <tr>
+            <td>{{ row.num }}</td>
+            <td>{{ row.et|floatformat:4 }}</td>
+            <td>{{ row.et_sq|floatformat:4 }}</td>
+            <td>
+              {% if row.diff_sq is not None %}
+                {{ row.diff_sq|floatformat:4 }}
+              {% else %}
+                &mdash;
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2"><strong>Сумма</strong></td>
+          <td>{{ D.sum_et_sq|floatformat:4 }}</td>
+          <td>{{ D.sum_diff_sq|floatformat:4 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+    <p>Статистика d = {{ D.d|floatformat:4 }}</p>
+    <p><strong>Заключение:</strong> {{ D.concl }}</p>
+    <hr>
+  {% endfor %}
+{% endfor %}
+
+
+
+    {# 10.20–10.21: точность моделей #}
+    <h3>Оценка точности моделей</h3>
+    {% for series, mt in metrics_tests.items %}
+      <h4>Ряд {{ series }}</h4>
+      <table class="table">
+        <thead><tr>
+          <th>Модель</th><th>MAPE %</th><th>SSE</th><th>MSE</th><th>S</th>
+        </tr></thead>
+        <tbody>
+          {% for model, m in mt.items %}
+            <tr>
+              <td>{{ model }}</td>
+              <td>{{ m.MAPE|floatformat:"2" }}</td>
+              <td>{{ m.SSE|floatformat:"2" }}</td>
+              <td>{{ m.MSE|floatformat:"2" }}</td>
+              <td>{{ m.S|floatformat:"2" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <hr>
+    {% endfor %}
+
+    <h2>Выводы</h2>
+    <ul>
+      {% for series, best in best_models.items %}
+        <li>{{ series }}: <strong>{{ best }}</strong></li>
+      {% endfor %}
+    </ul>
+    <p>Наименьшие значения MAPE, SSE, MSE и S у перечисленных моделей говорят о их наибольшей точности.</p>
+
+  </div>
+</body>
+</html>

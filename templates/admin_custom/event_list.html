@@ -1,0 +1,37 @@
+<!-- admin_custom/event_list.html -->
+{% extends 'main/base.html' %}
+{% block title %}Список мероприятий (Админ){% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Список мероприятий</h2>
+  <a href="{% url 'custom_admin_event_create' %}" class="btn btn-primary mb-3">Создать мероприятие</a>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Дата</th>
+        <th>Место</th>
+        <th>Организатор</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for e in events %}
+      <tr>
+        <td>{{ e.id }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.date|date:"d.m.Y H:i" }}</td>
+        <td>{{ e.location }}</td>
+        <td>{{ e.organizer.user.username }}</td>
+        <td>
+          <a href="{% url 'custom_admin_event_edit' e.id %}" class="btn btn-warning btn-sm">Редактировать</a>
+          <a href="{% url 'custom_admin_event_delete' e.id %}" class="btn btn-danger btn-sm">Удалить</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

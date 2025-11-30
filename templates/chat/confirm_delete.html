@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Подтверждение удаления{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Подтвердите удаление сообщения</h2>
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5>{{ message.user.username }} 
+        <small class="text-muted">{{ message.created_at|date:"d M Y H:i" }}</small>
+      </h5>
+      <p>{{ message.content }}</p>
+    </div>
+  </div>
+  <form method="post" action="">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <a href="{% url 'chat_page' %}" class="btn btn-secondary">Отмена</a>
+  </form>
+</div>
+{% endblock %}

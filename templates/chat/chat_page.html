@@ -1,0 +1,29 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}Групповой чат{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Групповой чат</h1>
+    <div id="chat-messages">
+        {% for msg in messages %}
+            <div class="card my-2">
+                <div class="card-body">
+                    <strong>{{ msg.user.username }}</strong> <small class="text-muted">{{ msg.created_at|date:"d.m.Y H:i" }}</small>
+                    <p>{{ msg.content }}</p>
+                    <!-- Здесь можно добавить кнопки лайка, дизлайка, удаления и т.д. -->
+                </div>
+            </div>
+        {% empty %}
+            <p>Нет сообщений</p>
+        {% endfor %}
+    </div>
+    <form id="chat-form" method="post" action="{% url 'chat_api' %}">
+        {% csrf_token %}
+        <div class="input-group">
+            <input type="text" name="content" class="form-control" placeholder="Ваше сообщение..." required>
+            <button class="btn btn-primary" type="submit">Отправить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

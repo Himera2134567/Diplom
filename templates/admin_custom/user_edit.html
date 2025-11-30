@@ -1,0 +1,61 @@
+{% extends 'main/base.html' %}
+{% block title %}Редактировать пользователя#{{ user_obj.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Редактировать пользователя #{{ user_obj.id }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="username" class="form-label">Имя пользователя</label>
+            <input type="text" id="username" name="username" class="form-control"
+                   value="{{ user_obj.username }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-control"
+                   value="{{ user_obj.email }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Новый пароль</label>
+            <input type="password" id="password" name="password" class="form-control"
+                   placeholder="Оставьте пустым, если не меняется">
+        </div>
+
+        <div class="mb-3">
+            <label for="city" class="form-label">Город</label>
+            <input type="text" id="city" name="city" class="form-control"
+                   value="{{ profile.city }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="address" class="form-label">Адрес</label>
+            <input type="text" id="address" name="address" class="form-control"
+                   value="{{ profile.address }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="user_type" class="form-label">Тип пользователя</label>
+            <select id="user_type" name="user_type" class="form-select">
+                <option value="buyer" {% if profile.user_type == "buyer" %}selected{% endif %}>Покупатель</option>
+                <option value="organizer" {% if profile.user_type == "organizer" %}selected{% endif %}>Организатор</option>
+                <option value="admin" {% if profile.user_type == "admin" %}selected{% endif %}>Администратор</option>
+            </select>
+        </div>
+
+        {% if profile.user_type == "organizer" %}
+        <div class="mb-3">
+            <label for="event_type" class="form-label">Подтип организатора</label>
+            <select id="event_type" name="event_type" class="form-select">
+                <option value="sport" {% if profile.event_type == "sport" %}selected{% endif %}>Спортивные</option>
+                <option value="culture" {% if profile.event_type == "culture" %}selected{% endif %}>Культурные</option>
+            </select>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

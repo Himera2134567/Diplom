@@ -1,0 +1,26 @@
+<!-- admin_custom/merch_detail.html -->
+{% extends 'main/base.html' %}
+{% load static %} <!-- Добавлено для корректной работы тега static -->
+
+{% block title %}Детали товара{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ merch.name }}</h2>
+    <div class="row">
+        <div class="col-md-6">
+            {% if merch.image %}
+                <img src="{{ merch.image.url }}" class="img-fluid" alt="{{ merch.name }}">
+            {% else %}
+                <img src="{% static 'main/images/default_merch.jpg' %}" class="img-fluid" alt="{{ merch.name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <p><strong>Название:</strong> {{ merch.name }}</p>
+            <p><strong>Описание:</strong> {{ merch.description }}</p>
+            <p><strong>Цена (в баллах):</strong> {{ merch.price_in_points }}</p>
+        </div>
+    </div>
+    <a href="{% url 'custom_admin_merch_list' %}" class="btn btn-secondary mt-3">Назад</a>
+</div>
+{% endblock %}

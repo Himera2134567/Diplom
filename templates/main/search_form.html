@@ -1,0 +1,13 @@
+<!-- main/templates/main/search_form.html -->
+{% extends 'main/base.html' %}
+
+
+{% block title %}Поиск мероприятий{% endblock %}
+
+{% block content %}
+    <h1>Поиск мероприятий</h1>
+    <form method="get" action="{% url 'search_events' %}">
+        <input type="text" name="query" placeholder="Введите название мероприятия">
+        <button type="submit">Поиск</button>
+    </form>
+{% endblock %}

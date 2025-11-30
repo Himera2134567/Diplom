@@ -1,0 +1,22 @@
+<!-- main/templates/main/search_results.html -->
+{% extends 'base.html' %}
+
+{% block title %}Результаты поиска{% endblock %}
+
+{% block content %}
+    <h1>Результаты поиска по запросу "{{ query }}"</h1>
+    {% if events %}
+        <ul>
+            {% for event in events %}
+                <li>
+                    <h2><a href="{% url 'event_detail' event.id %}">{{ event.name }}</a></h2>
+                    <p>Дата: {{ event.date }}</p>
+                    <p>Место: {{ event.location }}</p>
+                    <p>Описание: {{ event.description|truncatewords:20 }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Ничего не найдено.</p>
+    {% endif %}
+{% endblock %}

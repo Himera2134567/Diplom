@@ -1,0 +1,79 @@
+<!-- main/templates/main/event_detail.html -->
+{% extends 'main/base.html' %}
+{% load static star_filters %}
+
+{% block title %}{{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-3">{{ event.name }}</h2>
+            <p><strong>Описание:</strong></p>
+            <div style="height: 85px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                <p>{{ event.description }}</p>
+            </div>
+            <p><strong>Дата и время:</strong> {{ event.date|date:"d.m.Y H:i" }}</p>
+            <p><strong>Место проведения:</strong> {{ event.location }}</p>
+            <p><strong>Цена билета:</strong> {{ event.ticket_price }} руб.</p>
+            <p><strong>Тип мероприятия:</strong> {{ event.get_event_type_display }}</p>
+
+            <!-- Новое поле: информация об оплате -->
+            <p><strong>Информация об оплате:</strong> {{ event.payment_info }}</p>
+
+            {% if event.image %}
+                <img src="{{ event.image.url }}" class="img-fluid mt-3"
+                     alt="{{ event.name }}"
+                     style="max-height: 400px; object-fit: cover;">
+            {% endif %}
+
+            <hr>
+            <h3>Отзывы о мероприятии</h3>
+            {% if event.comments.all %}
+                <ul>
+                    {% for comment in event.comments.all %}
+                        <li style="margin-bottom: 10px;">
+                            <strong>{{ comment.user.username }}</strong>
+                            ({{ comment.created_at|date:"d.m.Y H:i" }})<br>
+                            <span style="color: #ffc107;">
+                                {{ comment.rating|stars }}
+                            </span><br>
+                            "{{ comment.text }}"
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Нет отзывов о мероприятии.</p>
+            {% endif %}
+
+            {% if user.is_authenticated and user.profile.user_type == 'buyer' %}
+                <a href="{% url 'add_comment' event_id=event.pk %}"
+                   class="btn btn-info mt-3">
+                    Оставить отзыв
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'select_seat' event.id %}"
+                   class="btn btn-success btn-lg mb-3">
+                   Купить билет
+                </a>
+                {% if user.profile.user_type == 'organizer' and event.organizer == user.profile %}
+                    <a href="{% url 'edit_event' event.pk %}" class="btn btn-warning mb-2">Редактировать</a>
+                    <a href="{% url 'delete_event' event.pk %}" class="btn btn-danger mb-2">Удалить</a>
+                {% endif %}
+                <p>
+                  <strong>Организатор:</strong>
+                  <a href="{% url 'organizer_detail' event.organizer.pk %}">
+                     {{ event.organizer.user.username }}
+                  </a>
+                </p>
+            {% else %}
+                <p>Пожалуйста, <a href="{% url 'login' %}">войдите</a> для покупки билета.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

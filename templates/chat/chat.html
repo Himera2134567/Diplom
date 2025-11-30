@@ -1,0 +1,279 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}Групповой чат{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Групповой чат</h1>
+    
+    <!-- Блок переключения сортировки -->
+    <div class="mb-3">
+        <span>Сортировать по: </span>
+        <a href="?sort=new" class="{% if sort_by == 'new' %}fw-bold text-primary{% endif %}">Новые</a> |
+        <a href="?sort=popular" class="{% if sort_by == 'popular' %}fw-bold text-primary{% endif %}">Популярные</a>
+    </div>
+    
+    <div id="chat-container" class="card">
+        <div id="messages" class="card-body" style="max-height: 500px; overflow-y: auto;">
+            {% for message in messages %}
+            <div class="message mb-3 border-bottom pb-2" id="message-{{ message.id }}">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <a href="{% url 'profile' message.user.pk %}">{{ message.user.username }}</a>
+                        {% if message.user.profile.user_type == "buyer" %}
+                            <span class="badge bg-secondary">Покупатель</span>
+                        {% elif message.user.profile.user_type == "organizer" %}
+                            <span class="badge bg-secondary">Организатор</span>
+                        {% elif message.user.profile.user_type == "admin" %}
+                            <span class="badge bg-secondary">Администратор</span>
+                        {% endif %}
+                        <small class="text-muted">{{ message.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    {% if user.is_authenticated %}
+                        {% if request.user == message.user or request.user.is_staff %}
+                        <div>
+                            <button class="btn btn-link text-danger delete-btn" data-message-id="{{ message.id }}">Удалить</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <p>{{ message.content }}</p>
+                <div class="mb-2">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'chat_reply' message.id %}" class="btn btn-sm btn-outline-primary">Ответить</a>
+                        <button class="btn btn-sm btn-outline-success like-btn" data-message-id="{{ message.id }}">
+                            Лайк (<span class="like-count">{{ message.get_like_count }}</span>)
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger dislike-btn" data-message-id="{{ message.id }}">
+                            Дизлайк (<span class="dislike-count">{{ message.get_dislike_count }}</span>)
+                        </button>
+                        <button class="btn btn-sm btn-info toggle-reactions-btn" data-target="#reactions-{{ message.id }}">
+                            Показать реакции
+                        </button>
+                    {% else %}
+                        <span>Лайков: {{ message.get_like_count }}, дизлайков: {{ message.get_dislike_count }}</span>
+                    {% endif %}
+                </div>
+                <div class="reactions-info mt-2" id="reactions-{{ message.id }}" style="display: none;">
+                    {% regroup message.reactions.all by reaction_type as reaction_groups %}
+                    {% for group in reaction_groups %}
+                        {% if group.grouper == "like" %}
+                            <p>Лайки ({{ message.get_like_count }}):
+                            {% for reaction in group.list %}
+                                <a href="{% url 'profile' reaction.user.pk %}">{{ reaction.user.username }}</a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            </p>
+                        {% elif group.grouper == "dislike" %}
+                            <p>Дизлайки ({{ message.get_dislike_count }}):
+                            {% for reaction in group.list %}
+                                <a href="{% url 'profile' reaction.user.pk %}">{{ reaction.user.username }}</a>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% if message.replies.all %}
+                <button class="btn btn-sm btn-secondary toggle-replies-btn" data-target="#replies-{{ message.id }}">Свернуть ответы</button>
+                <div class="replies ms-4 border-start ps-3" id="replies-{{ message.id }}">
+                    {% for reply in message.replies.all %}
+                    <div class="reply mb-2" id="message-{{ reply.id }}">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a href="{% url 'profile' reply.user.pk %}"><strong>{{ reply.user.username }}</strong></a>
+                                {% if reply.user.profile.user_type == "buyer" %}
+                                    <span class="badge bg-secondary">Покупатель</span>
+                                {% elif reply.user.profile.user_type == "organizer" %}
+                                    <span class="badge bg-secondary">Организатор</span>
+                                {% elif reply.user.profile.user_type == "admin" %}
+                                    <span class="badge bg-secondary">Администратор</span>
+                                {% endif %}
+                                <small class="text-muted">{{ reply.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            {% if user.is_authenticated %}
+                                {% if request.user == reply.user or request.user.is_staff %}
+                                <div>
+                                    <button class="btn btn-link text-danger delete-btn" data-message-id="{{ reply.id }}">Удалить</button>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <p>{{ reply.content }}</p>
+                        <div>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'chat_reply' reply.id %}" class="btn btn-sm btn-outline-primary">Ответить</a>
+                                <button class="btn btn-sm btn-outline-success like-btn" data-message-id="{{ reply.id }}">
+                                    Лайк (<span class="like-count">{{ reply.get_like_count }}</span>)
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger dislike-btn" data-message-id="{{ reply.id }}">
+                                    Дизлайк (<span class="dislike-count">{{ reply.get_dislike_count }}</span>)
+                                </button>
+                                <button class="btn btn-sm btn-info toggle-reactions-btn" data-target="#reactions-{{ reply.id }}">
+                                    Показать реакции
+                                </button>
+                            {% else %}
+                                <span>Лайков: {{ reply.get_like_count }}, дизлайков: {{ reply.get_dislike_count }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="reactions-info mt-2" id="reactions-{{ reply.id }}" style="display: none;">
+                            {% regroup reply.reactions.all by reaction_type as reply_reaction_groups %}
+                            {% for group in reply_reaction_groups %}
+                                {% if group.grouper == "like" %}
+                                    <p>Лайки ({{ reply.get_like_count }}):
+                                    {% for reaction in group.list %}
+                                        <a href="{% url 'profile' reaction.user.pk %}">{{ reaction.user.username }}</a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    </p>
+                                {% elif group.grouper == "dislike" %}
+                                    <p>Дизлайки ({{ reply.get_dislike_count }}):
+                                    {% for reaction in group.list %}
+                                        <a href="{% url 'profile' reaction.user.pk %}">{{ reaction.user.username }}</a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    </p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p>Нет сообщений в чате. Будьте первым!</p>
+            {% endfor %}
+        </div>
+        {% if user.is_authenticated %}
+        <div class="card-footer">
+            <form id="chat-form" action="{% url 'chat_api' %}" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="content" class="form-control" placeholder="Введите сообщение..." required>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <div class="card-footer">
+            <p class="text-muted mb-0">Для отправки сообщений необходимо <a href="{% url 'login' %}">войти в систему</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Функция для удаления сообщения через AJAX
+function deleteMessage(messageId) {
+    fetch(`/chat/message/${messageId}/delete/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const messageBlock = document.getElementById(`message-${messageId}`);
+                if (messageBlock) {
+                    messageBlock.remove();
+                }
+            } else {
+                alert(data.error || 'Ошибка при удалении');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// Привязка обработчиков на кнопки удаления
+document.querySelectorAll('.delete-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const messageId = this.getAttribute('data-message-id');
+        deleteMessage(messageId);
+    });
+});
+
+// AJAX-отправка нового сообщения (если пользователь залогинен)
+{% if user.is_authenticated %}
+document.getElementById('chat-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            location.reload();
+        } else {
+            alert(data.error || 'Ошибка при отправке сообщения');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+{% endif %}
+
+// Обработка лайков и дизлайков (если пользователь залогинен)
+{% if user.is_authenticated %}
+document.querySelectorAll('.like-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const messageId = this.getAttribute('data-message-id');
+        fetch(`/chat/reaction/${messageId}/like/`)
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            });
+    });
+});
+document.querySelectorAll('.dislike-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const messageId = this.getAttribute('data-message-id');
+        fetch(`/chat/reaction/${messageId}/dislike/`)
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Ошибка');
+                }
+            });
+    });
+});
+{% endif %}
+
+// Переключение отображения ответов
+document.querySelectorAll('.toggle-replies-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const targetSelector = this.getAttribute('data-target');
+        const repliesContainer = document.querySelector(targetSelector);
+        if (repliesContainer) {
+            if (repliesContainer.style.display === 'none' || repliesContainer.style.display === '') {
+                repliesContainer.style.display = 'block';
+                this.textContent = 'Свернуть ответы';
+            } else {
+                repliesContainer.style.display = 'none';
+                this.textContent = 'Развернуть ответы';
+            }
+        }
+    });
+});
+
+// Переключение отображения блока реакций
+document.querySelectorAll('.toggle-reactions-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const targetSelector = this.getAttribute('data-target');
+        const reactionsContainer = document.querySelector(targetSelector);
+        if (reactionsContainer) {
+            if (reactionsContainer.style.display === 'none' || reactionsContainer.style.display === '') {
+                reactionsContainer.style.display = 'block';
+                this.textContent = 'Свернуть реакции';
+            } else {
+                reactionsContainer.style.display = 'none';
+                this.textContent = 'Показать реакции';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

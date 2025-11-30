@@ -1,0 +1,15 @@
+<!-- main/templates/main/buy_ticket.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Покупка билета{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Покупка билета на "{{ event.name }}"</h2>
+    <p><strong>Цена билета:</strong> {{ event.ticket_price }} руб.</p>
+    <p><strong>Доступно билетов:</strong> {{ event.ticket_quantity }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Подтвердить покупку</button>
+    </form>
+</div>
+{% endblock %}

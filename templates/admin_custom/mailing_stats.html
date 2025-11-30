@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+{% block title %}Статистика рассылок{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Статистика рассылок</h2>
+  <ul class="list-group">
+    {% for stat in stats %}
+      <li class="list-group-item">
+        Тема: <strong>{{ stat.topic.name }}</strong>
+        — Сообщений: <strong>{{ stat.sent_count }}</strong>
+        — Подписчиков: <strong>{{ stat.subscriber_count }}</strong>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

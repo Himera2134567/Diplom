@@ -1,0 +1,15 @@
+<!-- main/templates/main/purchase_merch.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Покупка мерча{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Покупка "{{ merch.name }}"</h2>
+    <p><strong>Цена:</strong> {{ merch.price_in_points }} баллов</p>
+    <p><strong>Ваши баллы:</strong> {{ user.profile.points }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Подтвердить покупку</button>
+    </form>
+</div>
+{% endblock %}

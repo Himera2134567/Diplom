@@ -1,0 +1,80 @@
+<!-- main/templates/main/home.html -->
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Добро пожаловать на Платформу мероприятий!</h2>
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="q" class="form-control" placeholder="Введите название или описание..." value="{{ query|default:'' }}">
+        </div>
+        <div class="col-md-2">
+            <select name="event_type" class="form-select">
+                <option value="all">Все типы</option>
+                <option value="sport" {% if event_type == "sport" %}selected{% endif %}>Спортивное</option>
+                <option value="culture" {% if event_type == "culture" %}selected{% endif %}>Культурное</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="city" class="form-control" placeholder="Введите город..." value="{{ city|default:'' }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="date" class="form-control" value="{{ date|default:'' }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Поиск</button>
+        </div>
+    </form>
+
+    <style>
+        .custom-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .custom-card .card-img-top {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .custom-card .description-box {
+            height: 80px; /* Фиксированная высота */
+            overflow-y: auto; /* Вертикальный скролл */
+            border: 1px solid #ccc; /* Граница */
+            padding: 5px; /* Внутренний отступ */
+        }
+        .custom-card .btn {
+            margin-top: auto;
+        }
+    </style>
+
+    <div class="row">
+        {% for event in events %}
+            <div class="col-md-4">
+                <div class="card custom-card">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.name }}">
+                    {% else %}
+                        <img src="{% static 'main/images/default_event.jpg' %}" class="card-img-top" alt="Default Image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.name }}</h5>
+                        <p><strong>Описание:</strong></p>
+                        <div class="description-box">
+                            <p>{{ event.description }}</p>
+                        </div>
+                        <p><strong>Дата:</strong> {{ event.date|date:"d.m.Y H:i" }}</p>
+                        <p><strong>Место:</strong> {{ event.location }}</p>
+                        <a href="{% url 'event_detail' event.pk %}" class="btn btn-primary">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Мероприятий не найдено.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

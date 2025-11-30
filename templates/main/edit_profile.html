@@ -1,0 +1,55 @@
+
+<!-- main/templates/main/edit_profile.html -->
+
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Редактирование профиля{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Редактировать профиль</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    <h4>Основные данные</h4>
+    <div class="mb-3">
+      {{ user_form.non_field_errors }}
+      {{ user_form.as_p }}
+    </div>
+
+    <h4>Данные профиля</h4>
+    <div class="mb-3">
+      {{ profile_form.non_field_errors }}
+      {{ profile_form.city.label_tag }}
+      {{ profile_form.city }}
+      {% for e in profile_form.city.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ profile_form.address.label_tag }}
+      {{ profile_form.address }}
+      {% for e in profile_form.address.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+    </div>
+    {% if profile_form.fields.event_type %}
+      <div class="mb-3">
+        {{ profile_form.event_type.label_tag }}
+        {{ profile_form.event_type }}
+        {% for e in profile_form.event_type.errors %}<div class="text-danger">{{ e }}</div>{% endfor %}
+      </div>
+    {% endif %}
+
+    <button type="submit" name="update_profile" class="btn btn-primary">Сохранить профиль</button>
+  </form>
+
+  <hr>
+
+  <h4>Сменить пароль</h4>
+  <p>Пароли хранятся в зашифрованном виде.</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ password_form.non_field_errors }}
+    {{ password_form.as_p }}
+    <button type="submit" name="change_password" class="btn btn-secondary">Изменить пароль</button>
+  </form>
+</div>
+{% endblock %}

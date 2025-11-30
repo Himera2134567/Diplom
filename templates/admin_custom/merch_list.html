@@ -1,0 +1,38 @@
+<!-- admin_custom/merch_list.html -->
+{% extends 'main/base.html' %}
+{% block title %}Админ — Список мерча{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Список товаров (Merch)</h2>
+    <a href="{% url 'custom_admin_merch_create' %}" class="btn btn-primary mb-3">Добавить товар</a>
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Цена (в баллах)</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in merch_list %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.name }}</td>
+                <td>{{ m.price_in_points }}</td>
+                <td>
+                    <a href="{% url 'custom_admin_merch_detail' m.id %}" class="btn btn-sm btn-info">Детали</a>
+                    <a href="{% url 'custom_admin_merch_edit' m.id %}" class="btn btn-sm btn-warning">Редактировать</a>
+                    <form action="{% url 'custom_admin_merch_delete' m.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

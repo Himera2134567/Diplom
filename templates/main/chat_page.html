@@ -1,0 +1,29 @@
+<!-- main/templates/main/chat_page.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Групповой чат{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Групповой чат</h2>
+  <div id="chat-messages" style="max-height: 500px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+    {% for msg in messages_list %}
+      <div class="mb-3">
+        <strong>{{ msg.user.username }}</strong> <small>{{ msg.created_at|date:"d.m.Y H:i" }}</small>
+        <p>{{ msg.content }}</p>
+      </div>
+    {% empty %}
+      <p>Сообщений пока нет.</p>
+    {% endfor %}
+  </div>
+  <hr>
+  <form method="post" action="{% url 'chat_page' %}" id="chat-form">
+    {% csrf_token %}
+    <div class="mb-3">
+      <textarea name="content" id="chat-input" class="form-control" placeholder="Введите сообщение..." rows="3"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+  </form>
+</div>
+{% endblock %}

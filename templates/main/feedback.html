@@ -1,0 +1,37 @@
+<!-- main/templates/main/feedback.html -->
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Обратная связь{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Обратная связь</h2>
+    <p>
+        Здесь вы можете отправить ваше сообщение, вопрос или предложение на электронную почту нашей организации.
+        После отправки ваше сообщение будет направлено на адрес <strong>kamil.g.04@bk.ru</strong>.
+        Вам также будет отправлено подтверждение на ваш адрес электронной почты.
+    </p>
+    <p>
+        Заполните, пожалуйста, следующие поля:
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="id_subject" class="form-label">Тема сообщения</label>
+            <input type="text" class="form-control" id="id_subject" name="subject" placeholder="Укажите тему вашего обращения" required>
+        </div>
+        <div class="mb-3">
+            <label for="id_message" class="form-label">Сообщение</label>
+            <textarea class="form-control" id="id_message" name="message" rows="5" placeholder="Опишите ваш вопрос или предложение подробно" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить сообщение</button>
+    </form>
+    <hr>
+    <p class="mt-3">
+        <small>
+            После отправки ваше сообщение будет обработано нашей службой поддержки, и мы свяжемся с вами в ближайшее время по указанному адресу электронной почты.
+        </small>
+    </p>
+</div>
+{% endblock %}

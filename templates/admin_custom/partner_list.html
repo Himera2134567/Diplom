@@ -1,0 +1,47 @@
+<!-- admin_custom/partner_list.html -->
+{% extends 'main/base.html' %}
+{% block title %}Админ — Список партнёров{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Список партнёров</h2>
+    <a href="{% url 'custom_admin_partner_create' %}" class="btn btn-primary mb-3">Создать партнёра</a>
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Сайт</th>
+                <th>Скидка (%)</th>
+                <th>Организатор</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for partner in partners %}
+            <tr>
+                <td>{{ partner.id }}</td>
+                <td>{{ partner.name }}</td>
+                <td>
+                    {% if partner.website %}
+                        <a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ partner.discount_rate }}</td>
+                <td>{{ partner.organizer.user.username }}</td>
+                <td>
+                    <a href="{% url 'custom_admin_partner_edit' partner.id %}" class="btn btn-sm btn-warning">Редактировать</a>
+                    <form action="{% url 'custom_admin_partner_delete' partner.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

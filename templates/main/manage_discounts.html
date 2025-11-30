@@ -1,0 +1,45 @@
+<!-- main/templates/main/manage_discounts.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Управление скидками{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Управление скидками</h2>
+
+    <h3>Добавить новую скидку</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Добавить скидку</button>
+    </form>
+
+    <h3 class="mt-5">Мои скидки</h3>
+    {% if discounts %}
+        <ul class="list-group">
+            {% for discount in discounts %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Скидка {{ discount.discount_rate }}%</strong> для {{ discount.to_organizer.user.username }} ({{ discount.to_organizer.user.email }})
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>У вас нет установленных скидок.</p>
+    {% endif %}
+</div>
+
+<!-- Добавьте скрипты для работы вкладок Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

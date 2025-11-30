@@ -1,0 +1,29 @@
+<!-- main/templates/main/merch_detail.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}{{ merch.name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">{{ merch.name }}</h2>
+    <div class="row">
+        <div class="col-md-6">
+            {% if merch.image %}
+                <img src="{{ merch.image.url }}" class="img-fluid" alt="{{ merch.name }}">
+            {% else %}
+                <img src="{% static 'main/images/default_merch.jpg' %}" class="img-fluid" alt="{{ merch.name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <!-- Статичное окно для описания -->
+            <div style="height: 150px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+                {{ merch.description }}
+            </div>
+            <p><strong>Цена в баллах:</strong> {{ merch.price_in_points }}</p>
+            <form method="post" action="{% url 'purchase_merch' merch.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Купить</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+<!-- main/templates/main/ticket_success.html -->
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Билет успешно создан{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Билет успешно создан!</h4>
+        <p>Ваш билет ожидает подтверждения оплаты. После подтверждения вы сможете применить доступные скидки.</p>
+        <hr>
+        <a href="{% url 'profile' %}" class="btn btn-primary">Перейти в профиль</a>
+    </div>
+</div>
+{% endblock %}

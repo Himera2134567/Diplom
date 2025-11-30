@@ -1,0 +1,51 @@
+<!-- main/templates/admin_custom/admin_base.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{% block title %}Админка{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'admin_custom/admin.css' %}">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'custom_admin_home' %}">Административная панель</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="adminNavbar">
+      <ul class="navbar-nav me-auto">
+        <!-- Пункты меню для разных моделей -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'custom_admin_event_list' %}">Мероприятия</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'custom_admin_merch_list' %}">Товары</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'custom_admin_ticket_list' %}">Билеты</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'home' %}">Вернуться на сайт</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container mt-4">
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }}">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endif %}
+  {% block content %}{% endblock %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

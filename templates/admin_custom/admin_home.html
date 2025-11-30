@@ -1,0 +1,25 @@
+{% extends 'main/base.html' %}
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Админ-панель</h2>
+    <p>Добро пожаловать в кастомную админ-панель!</p>
+    <h4>Управление сущностями</h4>
+    <ul>
+        <li><a href="{% url 'custom_admin_event_list' %}">Список мероприятий</a></li>
+        <li><a href="{% url 'custom_admin_merch_list' %}">Список товаров (Merch)</a></li>
+        <li><a href="{% url 'custom_admin_ticket_list' %}">Список билетов</a></li>
+        <li><a href="{% url 'custom_admin_user_list' %}">Список пользователей</a></li>
+        <li><a href="{% url 'custom_admin_partner_list' %}">Список партнёров</a></li>
+        <li><a href="{% url 'admin_statistics' %}">Статистика</a></li>
+    </ul>
+    <hr>
+    <h4>Рассылки</h4>
+    <ul>
+        <li><a href="{% url 'admin_mailing_dashboard' %}">Панель рассылок</a></li>
+        <li><a href="{% url 'admin_create_mailing_topic' %}">Создать тему рассылки</a></li>
+        <li><a href="{% url 'admin_create_mailing_message' %}">Создать сообщение рассылки</a></li>
+    </ul>
+</div>
+{% endblock %}

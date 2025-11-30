@@ -1,0 +1,13 @@
+<!-- main/templates/main/edit_event.html -->
+{% extends 'main/base.html' %}
+{% block title %}Редактировать мероприятие{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>Редактировать мероприятие</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+</div>
+{% endblock %}

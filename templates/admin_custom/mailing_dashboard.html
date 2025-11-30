@@ -1,0 +1,27 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Панель рассылок{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Панель рассылок</h2>
+  <p>Здесь вы можете управлять рассылками.</p>
+  
+  {% if topics %}
+    <ul class="list-group">
+      {% for topic in topics %}
+        <li class="list-group-item">
+          <strong>{{ topic.name }}</strong>
+          <br>
+          {{ topic.description }}
+          <br>
+          <small>Создано: {{ topic.created_at|date:"d.m.Y H:i" }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Нет тем рассылок.</p>
+  {% endif %}
+</div>
+{% endblock %}

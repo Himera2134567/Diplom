@@ -1,0 +1,13 @@
+<!-- main/templates/main/add_loyalty_program.html -->
+{% extends 'main/base.html' %}
+
+{% block title %}Добавить программу лояльности{% endblock %}
+
+{% block content %}
+    <h1>Добавить программу лояльности</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Добавить</button>
+    </form>
+{% endblock %}

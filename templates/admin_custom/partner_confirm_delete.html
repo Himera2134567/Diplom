@@ -1,0 +1,14 @@
+<!-- admin_custom/partner_confirm_delete.html -->
+{% extends 'main/base.html' %}
+{% block title %}Удалить партнёра{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Удалить партнёра "{{ partner.name }}"?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a href="{% url 'custom_admin_partner_list' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

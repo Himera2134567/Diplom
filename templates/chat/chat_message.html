@@ -1,0 +1,46 @@
+<div class="card mb-2">
+    <div class="card-body">
+        <h5 class="card-title">
+            {{ message.user.username }} 
+            <small class="text-muted" style="font-size:0.8em;">
+                ({{ message.created_at|date:"d.m.Y H:i" }})
+            </small>
+        </h5>
+        <p class="card-text">{{ message.content }}</p>
+
+        <!-- Кнопки лайк/дизлайк -->
+        <div class="mb-2">
+            <a href="{% url 'chat_reaction' message.id 'like' %}" class="btn btn-sm btn-success me-2">
+                Like ({{ message.chatreaction_set.filter(reaction_type='like').count }})
+            </a>
+            <a href="{% url 'chat_reaction' message.id 'dislike' %}" class="btn btn-sm btn-danger me-2">
+                Dislike ({{ message.chatreaction_set.filter(reaction_type='dislike').count }})
+            </a>
+            <!-- Удаление сообщения (только если это ваш message) -->
+            {% if message.user == request.user %}
+                <a href="{% url 'chat_delete_message' message.id %}" class="btn btn-sm btn-secondary">
+                    Удалить
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Форма ответа на сообщение -->
+        <form method="POST" class="mb-2">
+            {% csrf_token %}
+            <input type="hidden" name="parent_id" value="{{ message.id }}">
+            <div class="input-group">
+                <input type="text" name="content" class="form-control" placeholder="Написать ответ..." required>
+                <button class="btn btn-outline-primary" type="submit">Ответить</button>
+            </div>
+        </form>
+
+        <!-- Вывод вложенных ответов (replies) -->
+        {% if message.replies.all %}
+            <div class="ms-4 mt-3">
+                {% for reply in message.replies.all %}
+                    {% include "chat/chat_message.html" with message=reply %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

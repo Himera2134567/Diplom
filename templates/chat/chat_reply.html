@@ -1,0 +1,23 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}Ответ на сообщение{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Ответ на сообщение</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <strong>{{ parent.user.username }}</strong>
+            <small class="text-muted">{{ parent.created_at|date:"d.m.Y H:i" }}</small>
+            <p>{{ parent.content }}</p>
+        </div>
+    </div>
+    <form id="reply-form" action="{% url 'chat_reply' parent.id %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="content" class="form-label">Ваш ответ</label>
+            <textarea name="content" id="content" rows="3" class="form-control" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Отправить ответ</button>
+    </form>
+</div>
+{% endblock %}

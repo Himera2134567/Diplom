@@ -1,0 +1,136 @@
+<!-- main/templates/chat/chat_widget.html -->
+<div id="chat-widget" style="display: none; flex-direction: column; position: fixed; bottom: 90px; right: 20px; width: 320px; height: 400px; background: #fff; border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1100; transition: all 0.3s ease;">
+  <div id="chat-header" style="background: #007bff; color: #fff; padding: 10px; cursor: move; display: flex; justify-content: space-between; align-items: center;">
+    <span>Групповой чат</span>
+    <div>
+      <button id="chat-expand-btn" style="background: none; border: none; color: #fff; font-size: 16px; margin-right: 10px;">+</button>
+      <button id="chat-close-btn" style="background: none; border: none; color: #fff; font-size: 16px;">&times;</button>
+    </div>
+  </div>
+  <div id="chat-body" style="flex: 1; overflow-y: auto; padding: 10px;">
+    {% if chat_messages %}
+      {% for msg in chat_messages %}
+        <div class="chat-message" style="border-bottom: 1px solid #ccc; margin-bottom: 10px; padding-bottom: 5px;">
+          <p><strong>{{ msg.user.username }}</strong> <small>{{ msg.created_at|date:"d.m.Y H:i" }}</small></p>
+          <p>{{ msg.content }}</p>
+          <p>
+            <a href="{% url 'chat_reaction' msg.id 'like' %}">👍 ({{ msg.get_like_count }})</a> |
+            <a href="{% url 'chat_reaction' msg.id 'dislike' %}">👎 ({{ msg.get_dislike_count }})</a>
+          </p>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Сообщений пока нет.</p>
+    {% endif %}
+  </div>
+  <div id="chat-footer" style="padding: 10px; border-top: 1px solid #ccc;">
+    {% if user.is_authenticated %}
+      <form id="chat-form" method="post" action="{% url 'chat_api' %}">
+        {% csrf_token %}
+        <textarea name="content" id="chat-input" class="form-control" rows="3" placeholder="Введите сообщение..."></textarea>
+        <button type="submit" class="btn btn-primary btn-sm mt-2">Отправить</button>
+      </form>
+    {% else %}
+      <p class="text-muted">Войдите, чтобы отправлять сообщения.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var openBtn = document.getElementById('chat-open-btn');
+  var chatWidget = document.getElementById('chat-widget');
+  var closeBtn = document.getElementById('chat-close-btn');
+  var expandBtn = document.getElementById('chat-expand-btn');
+  var isExpanded = false;
+
+  if (openBtn && chatWidget) {
+    openBtn.addEventListener('click', function() {
+      chatWidget.style.display = 'flex';
+      openBtn.style.display = 'none';
+    });
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      chatWidget.style.display = 'none';
+      openBtn.style.display = 'block';
+    });
+  }
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      if (!isExpanded) {
+        chatWidget.classList.add('expanded');
+        expandBtn.textContent = '–';
+      } else {
+        chatWidget.classList.remove('expanded');
+        expandBtn.textContent = '+';
+      }
+      isExpanded = !isExpanded;
+    });
+  }
+
+  // Перетаскивание окна чата
+  function dragElement(elmnt) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    var header = document.getElementById("chat-header");
+    if (header) {
+      header.onmousedown = dragMouseDown;
+    } else {
+      elmnt.onmousedown = dragMouseDown;
+    }
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      document.onmousemove = elementDrag;
+    }
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+      elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+    function closeDragElement() {
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+  dragElement(chatWidget);
+
+  // AJAX отправка нового сообщения
+  document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var input = document.getElementById('chat-input');
+    var content = input.value.trim();
+    if (!content) return;
+    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch("{% url 'chat_api' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: new URLSearchParams({
+        'content': content,
+        'csrfmiddlewaretoken': csrfToken
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        // Добавляем новое сообщение в начало chat-body (или обновляем весь список)
+        location.reload(); // для простоты – перезагружаем страницу
+      } else {
+        alert("Ошибка: " + JSON.stringify(data.errors));
+      }
+    })
+    .catch(error => console.error('Ошибка:', error));
+  });
+});
+</script>

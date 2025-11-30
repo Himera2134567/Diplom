@@ -1,0 +1,21 @@
+<!-- admin_custom/partner_detail.html -->
+{% extends 'main/base.html' %}
+{% block title %}Партнёр: {{ partner.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Партнёр: {{ partner.name }}</h2>
+    <p><strong>Сайт:</strong>
+        {% if partner.website %}
+            <a href="{{ partner.website }}" target="_blank">{{ partner.website }}</a>
+        {% else %}
+            -
+        {% endif %}
+    </p>
+    <p><strong>Организатор:</strong> {{ partner.organizer.user.username }}</p>
+    <p><strong>Скидка партнёра:</strong> {{ partner.discount_rate }}%</p>
+
+    <hr>
+    <a href="{% url 'custom_admin_partner_list' %}" class="btn btn-secondary">Назад</a>
+</div>
+{% endblock %}

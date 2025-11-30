@@ -1,0 +1,52 @@
+<!-- main/templates/main/organizer_detail.html -->
+{% extends "main/base.html" %}
+{% load static star_filters %}
+
+{% block title %}Организатор: {{ organizer.user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Организатор: {{ organizer.user.username }}</h2>
+    <p><strong>Город:</strong> {{ organizer.city }}</p>
+    <p><strong>Тип мероприятий:</strong> {{ organizer.get_event_type_display }}</p>
+    <p><strong>Скидка организатора:</strong> {{ organizer.discount_rate }}%</p>
+
+    <hr>
+    <h3>Мероприятия организатора</h3>
+    <ul>
+      {% for evt in events %}
+        <li>
+          <a href="{% url 'event_detail' evt.pk %}">{{ evt.name }}</a>
+          — {{ evt.date|date:"d.m.Y H:i" }}
+        </li>
+      {% empty %}
+        <p>Пока мероприятий нет.</p>
+      {% endfor %}
+    </ul>
+
+    <hr>
+    <h3>Отзывы об организаторе</h3>
+    {% if organizer_comments %}
+        <ul>
+        {% for c in organizer_comments %}
+            <li style="margin-bottom: 15px;">
+                <strong>{{ c.user.username }}</strong>
+                <em>({{ c.created_at|date:"d.m.Y H:i" }})</em><br>
+                <span style="color: #ffc107;">
+                    {{ c.rating|stars }}
+                </span>
+                <br>
+                "{{ c.text }}"
+                <br>
+                <small>
+                  Отзыв к событию:
+                  <a href="{% url 'event_detail' c.event.pk %}">{{ c.event.name }}</a>
+                </small>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>Отзывов пока нет.</p>
+    {% endif %}
+</div>
+{% endblock %}

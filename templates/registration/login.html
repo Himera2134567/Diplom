@@ -1,0 +1,13 @@
+<!-- registration/login.html -->
+{% extends "main/base.html" %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Вход через /accounts/login/</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Мои рассылки{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Сообщения рассылок</h2>
+  {% if mailing_messages %}
+    <ul class="list-group">
+      {% for message in mailing_messages %}
+        <li class="list-group-item">
+          <strong>{{ message.topic.name }}</strong> &mdash; {{ message.sent_at|date:"d.m.Y H:i" }}<br>
+          {{ message.text }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>У вас нет сообщений по подписанным темам.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+<!-- main/templates/main/charts.html -->
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block title %}Отчёты{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Отчёты</h2>
+  <button onclick="location.reload()" class="btn btn-primary">Обновить отчёты</button>
+
+  <div class="mt-4">
+    <!-- 1. Гистограмма для спортивных мероприятий -->
+    <h4>Цены на билеты (Спорт)</h4>
+    <div id="sport_histogram_div" style="width: 100%; height: 400px;"></div>
+  </div>
+
+  <div class="mt-4">
+    <!-- 1. Гистограмма для культурных мероприятий -->
+    <h4>Цены на билеты (Культура)</h4>
+    <div id="culture_histogram_div" style="width: 100%; height: 400px;"></div>
+  </div>
+
+  <div class="mt-4">
+    <!-- 2. Круговая диаграмма -->
+    <h4>Распределение затрат по категориям</h4>
+    <div id="piechart_div" style="width: 100%; height: 400px;"></div>
+  </div>
+
+  <div class="mt-4">
+    <!-- 3. Линейный график выручки -->
+    <h4>Выручка по месяцам</h4>
+    <div id="line_chart_div" style="width: 100%; height: 400px;"></div>
+  </div>
+</div>
+
+<!-- Подключаем Google Charts -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawCharts);
+
+  function drawCharts(){
+    drawSportHistogram();
+    drawCultureHistogram();
+    drawPieChart();
+    drawLineChart();
+  }
+
+  // Гистограмма для спортивных мероприятий
+  function drawSportHistogram() {
+    var data = google.visualization.arrayToDataTable({{ sport_histogram_data|safe }});
+    var options = {
+      title: 'Цены на билеты (Спорт)',
+      legend: { position: 'none' },
+      hAxis: { title: 'Дата покупки' },
+      vAxis: { title: 'Цена билета (руб)' }
+    };
+    var chart = new google.visualization.Histogram(document.getElementById('sport_histogram_div'));
+    chart.draw(data, options);
+  }
+
+  // Гистограмма для культурных мероприятий
+  function drawCultureHistogram() {
+    var data = google.visualization.arrayToDataTable({{ culture_histogram_data|safe }});
+    var options = {
+      title: 'Цены на билеты (Культура)',
+      legend: { position: 'none' },
+      hAxis: { title: 'Дата покупки' },
+      vAxis: { title: 'Цена билета (руб)' }
+    };
+    var chart = new google.visualization.Histogram(document.getElementById('culture_histogram_div'));
+    chart.draw(data, options);
+  }
+
+  // Круговая диаграмма
+  function drawPieChart() {
+    var data = google.visualization.arrayToDataTable({{ pie_data|safe }});
+    var options = {
+      title: 'Распределение затрат по категориям',
+      is3D: true
+    };
+    var chart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+    chart.draw(data, options);
+  }
+
+  // Линейный график выручки
+  function drawLineChart() {
+    var lineData = new google.visualization.DataTable();
+    lineData.addColumn('date', 'Месяц');
+    lineData.addColumn('number', 'Выручка');
+
+    var rawData = {{ line_data|safe }};
+    // Преобразуем строки в даты
+    for (var i = 1; i < rawData.length; i++) {
+      var row = rawData[i];
+      var dt = new Date(row[0]);
+      lineData.addRow([dt, row[1]]);
+    }
+
+    var options = {
+      title: 'Выручка по месяцам',
+      hAxis: { title: 'Месяц', format: 'MMM yyyy' },
+      vAxis: { title: 'Сумма (руб)' }
+    };
+    var chart = new google.visualization.LineChart(document.getElementById('line_chart_div'));
+    chart.draw(lineData, options);
+  }
+</script>
+{% endblock %}
